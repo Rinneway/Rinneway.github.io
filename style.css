@@ -1,0 +1,332 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red:    #FF2D55;
+  --pink:   #FF6B9D;
+  --gold:   #FFD700;
+  --dark:   #080014;
+  --card:   rgba(8, 0, 25, 0.92);
+  --border: rgba(255, 45, 85, 0.7);
+  --glow:   0 0 24px rgba(255,45,85,0.5), 0 0 60px rgba(255,45,85,0.18);
+  --font:   'Press Start 2P', 'Courier New', monospace;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--dark);
+  font-family: var(--font);
+  color: #fff;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  touch-action: none;
+  user-select: none;
+}
+
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 40%, rgba(80,0,120,0.35) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 100% at 50% 100%, rgba(200,0,60,0.12) 0%, transparent 60%),
+    #080014;
+}
+
+#gameWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border: 0 none;
+  outline: 3px solid rgba(255,45,85,0.7);
+  outline-offset: 0;
+  box-shadow: var(--glow), inset 0 0 0 1px rgba(255,255,255,0.04);
+  position: relative;
+  z-index: 1;
+}
+
+/* Corner decorations */
+#gameWrapper::before,
+#gameWrapper::after {
+  content: "";
+  position: absolute;
+  width: 12px; height: 12px;
+  border-color: var(--gold);
+  border-style: solid;
+  z-index: 2;
+  pointer-events: none;
+}
+#gameWrapper::before {
+  top: -2px; left: -2px;
+  border-width: 2px 0 0 2px;
+}
+#gameWrapper::after {
+  top: -2px; right: -2px;
+  border-width: 2px 2px 0 0;
+}
+
+#mobileControls {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 18px 24px;
+  pointer-events: none; /* сам контейнер прозрачный */
+  z-index: 200;
+}
+
+.ctrl-group {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  pointer-events: auto;
+}
+
+.ctrl-btn {
+  width: 70px; height: 70px;
+  background: rgba(255,255,255,0.07);
+  border: 2px solid rgba(255,255,255,0.30);
+  border-radius: 16px;
+  color: rgba(255,255,255,0.85);
+  font-size: 26px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.08s, border-color 0.08s, transform 0.08s;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.55);
+  touch-action: none;
+  outline: none;
+  /* Backdrop blur для красоты */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.ctrl-btn:active {
+  background: rgba(255,45,85,0.40);
+  border-color: var(--red);
+  transform: scale(0.88);
+  box-shadow: 0 0 14px rgba(255,45,85,0.5);
+}
+
+/* Прыжок — крупнее и акцентный */
+.ctrl-btn.jump {
+  width: 84px; height: 84px;
+  background: rgba(255,45,85,0.14);
+  border-color: rgba(255,45,85,0.60);
+  font-size: 30px;
+  box-shadow: 0 4px 20px rgba(255,45,85,0.3);
+}
+.ctrl-btn.jump:active {
+  background: rgba(255,45,85,0.50);
+  box-shadow: 0 0 20px rgba(255,45,85,0.6);
+}
+
+/* На ПК (мышь + hover)полностью скрываем */
+@media (hover: hover) and (pointer: fine) {
+  #mobileControls { display: none !important; }
+}
+
+#resetBtn {
+  position: fixed;
+  top: 10px; right: 10px;
+  background: rgba(0,0,0,0.65);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 7px;
+  color: rgba(255,255,255,0.45);
+  font-family: var(--font);
+  font-size: 7px;
+  padding: 6px 10px;
+  cursor: pointer;
+  z-index: 1000;
+  letter-spacing: 0.5px;
+  transition: color 0.2s, border-color 0.2s;
+}
+#resetBtn:hover { color: #fff; border-color: var(--red); }
+
+/* Lock screen*/
+#lockScreen {
+  display: none;
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 40%, rgba(80,0,120,0.5) 0%, transparent 70%),
+    #080014;
+  z-index: 500;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.lock-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 40px 28px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(255,45,85,0.25), 0 0 100px rgba(100,0,200,0.15);
+  position: relative;
+}
+
+/* Lock card corner accents */
+.lock-card::before, .lock-card::after {
+  content: "♥";
+  position: absolute;
+  font-size: 10px;
+  color: rgba(255,45,85,0.5);
+}
+.lock-card::before { top: 12px; left: 16px; }
+.lock-card::after  { top: 12px; right: 16px; }
+
+.lock-title {
+  font-size: 14px;
+  color: var(--gold);
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 12px rgba(255,215,0,0.5);
+}
+.lock-sub {
+  font-size: 8px;
+  color: rgba(255,255,255,0.5);
+  line-height: 2;
+  margin-bottom: 26px;
+}
+
+/* Hints row */
+.lock-hints {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+.hint-badge {
+  flex: 1;
+  background: rgba(255,45,85,0.08);
+  border: 1px solid rgba(255,45,85,0.35);
+  border-radius: 10px;
+  padding: 10px 8px;
+  font-size: 7px;
+  color: rgba(255,255,255,0.55);
+  line-height: 2;
+}
+.hint-badge .digit {
+  display: block;
+  font-size: 26px;
+  color: var(--gold);
+  margin-top: 4px;
+  text-shadow: 0 0 10px rgba(255,215,0,0.6);
+}
+
+.code-inputs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+.code-input {
+  width: 66px; height: 76px;
+  background: rgba(255,255,255,0.04);
+  border: 2px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  color: var(--gold);
+  font-family: var(--font);
+  font-size: 30px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  caret-color: var(--red);
+}
+.code-input:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 16px rgba(255,45,85,0.45);
+}
+
+.open-btn {
+  background: linear-gradient(135deg, #FF2D55, #c0004a);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-family: var(--font);
+  font-size: 10px;
+  padding: 14px 28px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 5px 22px rgba(255,45,85,0.5);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.open-btn:hover { transform: translateY(-2px); box-shadow: 0 9px 30px rgba(255,45,85,0.65); }
+.open-btn:active { transform: translateY(0); }
+
+/* Error */
+#lockError {
+  display: none;
+  color: #FF6B6B;
+  font-size: 8px;
+  margin-top: 12px;
+  animation: shake 0.3s ease;
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
+
+.lock-reset-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 7px;
+  color: rgba(255,255,255,0.3);
+  font-family: var(--font);
+  font-size: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.lock-reset-btn:hover { color: #fff; border-color: var(--red); }
+
+/* Responsive*/
+@media (max-width: 840px) {
+  canvas { outline-width: 2px; }
+}
+@media (max-width: 540px) {
+  .lock-card { padding: 24px 16px 20px; }
+  .lock-title { font-size: 11px; }
+  .code-input { width: 54px; height: 64px; font-size: 24px; }
+  .hint-badge .digit { font-size: 20px; }
+  /* Кнопки на маленьких экранах чуть меньше */
+  .ctrl-btn      { width: 62px; height: 62px; font-size: 22px; }
+  .ctrl-btn.jump { width: 74px; height: 74px; font-size: 26px; }
+  #mobileControls { padding: 0 12px 16px; }
+}

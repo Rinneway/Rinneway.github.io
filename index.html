@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Сердце в каждом шаге</title>
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="Сердце в каждом шаге" />
+  <meta property="og:description" content="Пиксельный платформер-сюрприз ❤️" />
+  <meta property="og:image"       content="./preview.png" />
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Сердце в каждом шаге" />
+  <meta name="twitter:description" content="Пиксельный платформер-сюрприз ❤️" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💖</text></svg>" />
+
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+<div id="root">
+
+  <!-- CANVAS -->
+  <div id="gameWrapper">
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+  </div>
+
+  <div id="mobileControls">
+    <div class="ctrl-group ctrl-left">
+      <button class="ctrl-btn" id="btnLeft"  aria-label="Влево">◀</button>
+      <button class="ctrl-btn" id="btnRight" aria-label="Вправо">▶</button>
+    </div>
+    <div class="ctrl-group ctrl-right">
+      <button class="ctrl-btn jump" id="btnJump" aria-label="Прыжок">▲</button>
+    </div>
+  </div>
+
+  <!-- LOCK SCREEN -->
+  <div id="lockScreen" role="dialog" aria-label="Введи секретный код">
+    <div class="lock-card">
+
+      <div class="lock-title">🔐 Секретный замок 🔐</div>
+      <div class="lock-sub">
+        Введи три цифры, которые ты собрала<br>
+        на каждом из уровней
+      </div>
+
+      <div class="lock-hints">
+        <div class="hint-badge">Уровень 1<span class="digit" id="hint1">?</span></div>
+        <div class="hint-badge">Уровень 2<span class="digit" id="hint2">?</span></div>
+        <div class="hint-badge">Уровень 3<span class="digit" id="hint3">?</span></div>
+      </div>
+
+      <div class="code-inputs">
+        <input class="code-input" id="code1" type="tel" maxlength="1" placeholder="?" autocomplete="off" inputmode="numeric" />
+        <input class="code-input" id="code2" type="tel" maxlength="1" placeholder="?" autocomplete="off" inputmode="numeric" />
+        <input class="code-input" id="code3" type="tel" maxlength="1" placeholder="?" autocomplete="off" inputmode="numeric" />
+      </div>
+
+      <button class="open-btn" onclick="checkCode()">❤️ &nbsp;Открыть сердце</button>
+      <div id="lockError">Не тот код... Попробуй ещё раз 💔</div>
+      <br>
+      <button class="lock-reset-btn" onclick="resetGame()">↺ &nbsp;Начать заново</button>
+    </div>
+  </div>
+
+</div><!-- #root -->
+
+<!-- Global reset button -->
+<button id="resetBtn" onclick="resetGame()" title="Сбросить игру">↺ сброс</button>
+
+<!-- Scripts -->
+<script src="./config.js"></script>
+<script src="./levels.js"></script>
+<script src="./game.js"></script>
+
+<script>
+  // Auto-advance between code inputs + Enter to submit
+  const codeIds = ["code1","code2","code3"];
+  codeIds.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", () => {
+      el.value = el.value.replace(/\D/g,"").slice(0,1);
+      if (el.value.length === 1 && i < codeIds.length - 1)
+        document.getElementById(codeIds[i+1]).focus();
+    });
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter")     checkCode();
+      if (e.key === "Backspace" && el.value === "" && i > 0)
+        document.getElementById(codeIds[i-1]).focus();
+    });
+  });
+</script>
+</body>
+</html>

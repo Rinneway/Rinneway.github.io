@@ -37,9 +37,9 @@ const levels = [
     ],
 
     enemies: [
-      { x: 600, y: 330, w: 20, h: 20, dx: 0.8, minX: 480, maxX: 780, color: "#e05c5c" },
-      { x: 1050, y: 330, w: 20, h: 20, dx: 1.0, minX: 860, maxX: 1060, color: "#e05c5c" },
-      { x: 1350, y: 240, w: 20, h: 20, dx: 1.0, minX: 1310, maxX: 1410, color: "#e05c5c" },
+      { x: 600, y: 330, w: 20, h: 20, dx: 0.8, minX: 480, maxX: 780, color: "#e05c5c", hp: 3, bump: false},
+      { x: 1050, y: 330, w: 20, h: 20, dx: 1.0, minX: 860, maxX: 1060, color: "#e05c5c", hp: 3, bump: false },
+      { x: 1350, y: 240, w: 20, h: 20, dx: 1.0, minX: 1310, maxX: 1410, color: "#e05c5c", hp: 3, bump: false },
     ],
 
     hearts: [
@@ -105,7 +105,8 @@ const levels = [
     ],
 
     enemies: [
-      { x: 1300,y: 330, w: 20, h: 20, dx: 1.2, minX: 1270, maxX: 1650, color: "#c0392b" },
+      { x: 1300, y: 330, w: 20, h: 20, dx: 1.2, minX: 1270, maxX: 1650, color: "#c0392b", hp: 3, bump: false },
+      { x: 200, y: 271, w: 20, h: 20, dx: 1.2, minX: 130, maxX: 210, color: "#c0392b", hp: 3, bump: false },
     ],
 
     hearts: [
@@ -178,10 +179,10 @@ const levels = [
     ],
 
     enemies: [
-      { x: 240, y: 249, w: 20, h: 20, dx: 0.9, minX: 220, maxX: 285, color: "#8e44ad" },
-      { x: 520, y: 219, w: 20, h: 20, dx: 1.2, minX: 500, maxX: 570, color: "#8e44ad" },
-      { x: 860, y: 184, w: 20, h: 20, dx: 1.5, minX: 840, maxX: 900, color: "#8e44ad" },
-      { x: 1110,y: 274, w: 20, h: 20, dx: 1.0, minX: 1060, maxX: 1170, color: "#8e44ad" },
+      { x: 240, y: 249, w: 20, h: 20, dx: 0.9, minX: 220, maxX: 285, color: "#8e44ad", hp: 3, bump: false },
+      { x: 520, y: 219, w: 20, h: 20, dx: 1.2, minX: 500, maxX: 570, color: "#8e44ad", hp: 3, bump: false },
+      { x: 860, y: 184, w: 20, h: 20, dx: 1.5, minX: 840, maxX: 900, color: "#8e44ad", hp: 3, bump: false },
+      { x: 1110,y: 274, w: 20, h: 20, dx: 1.0, minX: 1060, maxX: 1170, color: "#8e44ad", hp: 3, bump: false },
     ],
 
     hearts: [

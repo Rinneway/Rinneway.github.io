@@ -10,7 +10,7 @@ const cam = { x: 0, y: 0, shakeX: 0, shakeY: 0, shakeTimer: 0 };
 // State
 const G = {
   screen: "intro",   // intro | playing | levelEnd | gameover | lock | win
-  level:  1,
+  level:  0,
   codes:  [],
   lives:  5,
   tick:   0,

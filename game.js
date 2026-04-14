@@ -10,7 +10,7 @@ const cam = { x: 0, y: 0, shakeX: 0, shakeY: 0, shakeTimer: 0 };
 // State
 const G = {
   screen: "intro",   // intro | playing | levelEnd | gameover | lock | win
-  level:  0,
+  level:  1,
   codes:  [],
   lives:  5,
   tick:   0,
@@ -133,7 +133,7 @@ const snd = {
   gameover: () => { [330,294,262,220,196].forEach((f,i)=>setTimeout(()=>tone(f,"sawtooth",0.28,0.22),i*160)); },
 };
 
-// ── MUSIC ENGINE ──────────────────────────────
+// MUSIC ENGINE
 // Три трека: [частота мелодии, частота баса] на каждый шаг. 0 = пауза.
 const MUSIC_TRACKS = [
   {
@@ -491,20 +491,35 @@ function updateEnemies(dt) {
 
     // Collision with player
     if (P.stunTimer <= 0 && P.blinkTimer <= 0 && overlapAABB(P, e)) {
-      // Player jumps on top → stun enemy
+      // Player jumps on top → stun or kill enemy
       if (P.vy > 0 && P.y + P.h < e.y + e.h * 0.55) {
         e.stunned = 80;
         P.vy = gameConfig.jumpPower * 0.6;
         snd.bump();
         spawnParticles(e.x + e.w/2, e.y, "#FF6B6B", 6);
+        e.hp--;
+        if (e.hp <= 0) {
+          enemies = enemies.filter(en => en !== e);
+        } else {
+          e.bump = true;
+        }
       } else {
         // Enemy bumps player back
         P.vx = P.x < e.x + e.w/2 ? -5 : 5;
         P.vy = -4;
         P.stunTimer = 40;
-        P.blinkTimer = 80;
+        P.blinkTimer = 120;
         snd.bump();
         shakeScreen(4, 12);
+        G.lives--;
+        if (G.lives <= 0) {
+          G.lives = 0;
+          musicStop();
+          snd.gameover();
+          G.screen = "gameover";
+        } else {
+          snd.loseLife();
+        }
       }
     }
   }
@@ -790,7 +805,14 @@ function drawEnemy(e, cx) {
   const legOff = e.stunned ? 0 : Math.sin(t*0.25)*4;
   ctx.fillStyle = e.color;
   ctx.fillRect(-6, 0, 4, 6+legOff); ctx.fillRect(2, 0, 4, 6-legOff);
+  if (e.bump) {
+    ctx.fillStyle = "rgba(255,220,0,0.8)";
+    ctx.font = "9px serif"; ctx.textAlign="center";
+    ctx.fillText(e.hp+"/3",0,-5); ctx.textAlign="left";
+    e.bump = false;
+  }
   ctx.restore();
+  
 }
 
 // Heart (world)

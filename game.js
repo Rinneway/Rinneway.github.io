@@ -11,8 +11,8 @@ const cam = { x: 0, y: 0, shakeX: 0, shakeY: 0, shakeTimer: 0 };
 const G = {
   screen: "intro",   // intro | playing | levelEnd | gameover | lock | win
   level:  0,
-  codes:  [],
-  lives:  5,
+  codes:  ['-', '-', '-'],
+  lives:  4,
   tick:   0,
   levelEndTimer: 0,
   levelEndMsg:   "",
@@ -173,23 +173,27 @@ const MUSIC_TRACKS = [
     ],
   },
   {
-    // Уровень 3 — «Ночная тайна» (ля-минор, таинственно)
-    tempo: 255,
+    // Уровень 3 — «Звёздная ночь» (приключение, бодрый марш)
+    tempo: 155,
     melody: [
-      440,0,415,0,  370,0,330,0,
-      349,0,370,0,  415,0,440,0,
-      494,0,523,0,  494,0,440,0,
-      415,370,0,330, 294,0,330,0,
-      349,370,0,415, 440,0,415,0,
-      370,0,330,294, 330,0,0,0,
+      659,0,659,0,  0,523,659,0,
+      784,0,0,0,    392,0,0,0,
+      523,0,0,392,  0,0,330,0,
+      349,0,0,330,  0,0,294,0,
+      330,0,0,0,    392,0,523,0,
+      587,0,659,0,  698,0,784,0,
+      659,523,494,0, 440,0,0,0,
+      392,0,523,659, 784,659,0,0,
     ],
     bass: [
-      220,0,220,0, 220,0,220,0,
-      175,0,175,0, 175,0,175,0,
-      247,0,247,0, 247,0,247,0,
-      147,0,147,0, 165,0,165,0,
-      175,0,175,0, 175,0,175,0,
-      175,0,175,0, 165,0,165,0,
+      131,0,131,0,  131,0,131,0,
+      196,0,196,0,  196,0,196,0,
+      147,0,147,0,  147,0,147,0,
+      175,0,175,0,  175,0,175,0,
+      131,0,131,0,  196,0,196,0,
+      220,0,220,0,  247,0,262,0,
+      220,0,220,0,  220,0,220,0,
+      196,0,196,0,  262,0,0,0,
     ],
   },
 ];
@@ -300,7 +304,6 @@ function update(dt) {
     if (G.levelEndTimer <= 0) advanceLevel();
     updateParticles(dt);
   } else if (G.screen === "gameover") {
-    // ничего — ждём нажатия
   } else if (G.screen === "win") {
     updateFalling(dt);
     updateConfetti(dt);
@@ -560,7 +563,7 @@ function checkPortal() {
   if (overlapAABB(P, portalBox)) {
     snd.portal();
     const code = gameConfig.levelCodes[G.level];
-    G.codes.push(code);
+    G.codes[G.level] = code;
     G.levelEndMsg = `Цифра получена: ${code}`;
     G.levelEndTimer = 160;
     G.screen = "levelEnd";
@@ -998,26 +1001,30 @@ function drawWorld() {
 // HUD
 function drawHUD() {
   const t   = G.tick;
+  const lvl = levels[G.level];
   const collected = hearts.filter(h=>h.collected).length;
 
   // Background panel
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
   ctx.fillRect(0, 0, W, 36);
-  ctx.fillStyle = "rgba(255,45,85,0.5)";
+  ctx.fillStyle = "rgba(255,45,85,0.45)";
   ctx.fillRect(0, 35, W, 1);
 
   // Left: жизни
   ctx.font = "15px serif";
-  for (let i = 0; i < 5; i++) {
-    ctx.fillStyle = i < G.lives ? "#FF2D55" : "rgba(255,255,255,0.2)";
+  for (let i = 0; i < G.lives; i++) {
+    ctx.fillStyle = i < G.lives ? "#FF2D55" : "rgba(255,255,255,0.18)";
     ctx.fillText(i < G.lives ? "♥" : "♡", 10 + i * 20, 23);
   }
 
-  // Center: уровень
-  ctx.fillStyle = "#FFD700";
-  ctx.font = "bold 12px 'Press Start 2P', monospace";
+  // Center: level number + name
   ctx.textAlign = "center";
-  ctx.fillText(`${G.level+1} / 3`, W/2, 23);
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 10px 'Press Start 2P', monospace";
+  ctx.fillText(`${G.level+1} / 3`, W/2, 16);
+  ctx.fillStyle = "rgba(255,200,230,0.7)";
+  ctx.font = "8px 'Press Start 2P', monospace";
+  ctx.fillText(lvl.name, W/2, 29);
   ctx.textAlign = "left";
 
   // Right: сердечки уровня
@@ -1037,40 +1044,39 @@ function drawHUD() {
 // Game Over screen
 function drawGameOver() {
   const t = G.tick;
-  ctx.fillStyle = "rgba(0,0,0,0.75)";
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(0,0,0,0.78)"; ctx.fillRect(0,0,W,H);
 
-  ctx.save();
-  ctx.translate(W/2, H/2);
+  ctx.save(); ctx.translate(W/2, H/2);
 
-  ctx.fillStyle = "rgba(10,0,22,0.95)";
-  rr(ctx,-200,-90,400,180,18); ctx.fill();
-  ctx.shadowColor = "#FF2D55"; ctx.shadowBlur = 22;
-  ctx.strokeStyle = "#FF2D55"; ctx.lineWidth = 3;
-  rr(ctx,-200,-90,400,180,18); ctx.stroke();
-  ctx.shadowBlur = 0;
+  // Card
+  ctx.fillStyle = "rgba(8,0,18,0.97)";
+  rr(ctx,-210,-96,420,192,20); ctx.fill();
+  ctx.shadowColor="#CC0022"; ctx.shadowBlur=28;
+  ctx.strokeStyle="#CC0022"; ctx.lineWidth=3;
+  rr(ctx,-210,-96,420,192,20); ctx.stroke();
+  ctx.shadowBlur=0;
 
-  // Мигающие разбитые сердечки
-  ctx.font = "24px serif"; ctx.textAlign = "center";
-  ctx.fillStyle = Math.floor(t/14)%2 ? "#FF2D55" : "#5a0010";
-  ctx.fillText("💔  💔  💔", 0, -46);
+  // Blinking broken hearts
+  const blink = Math.floor(t/12)%2;
+  ctx.font="26px serif"; ctx.textAlign="center";
+  ctx.fillStyle = blink ? "#FF2D55" : "#660011";
+  ctx.fillText("💔   💔   💔", 0, -55);
 
-  ctx.fillStyle = "#FF6B6B";
-  ctx.font = "bold 14px 'Press Start 2P', monospace";
-  ctx.fillText("ЖИЗНИ КОНЧИЛИСЬ", 0, -6);
+  // "GAME OVER" - two-tone stroke text
+  txtStroke("ЖИЗНИ КОНЧИЛИСЬ", 0, -12,
+    "bold 16px 'Press Start 2P',monospace","#FF6060","#330000",5);
 
-  ctx.fillStyle = "rgba(255,255,255,0.5)";
-  ctx.font = "8px 'Press Start 2P', monospace";
-  ctx.fillText("всё начинается сначала...", 0, 24);
+  ctx.fillStyle="rgba(255,200,210,0.5)"; ctx.font="8px 'Press Start 2P',monospace";
+  ctx.textAlign="center";
+  ctx.fillText("всё начинается заново...", 0, 24);
 
-  const pa = 0.45 + 0.55*Math.sin(t*0.09);
-  ctx.fillStyle = `rgba(255,215,0,${pa})`;
-  ctx.font = "9px 'Press Start 2P', monospace";
-  ctx.fillText("[ ПРОБЕЛ / тап ]", 0, 60);
-  ctx.textAlign = "left";
-  ctx.restore();
+  // Pulsing hint
+  const pa = 0.4+0.6*Math.abs(Math.sin(t*0.085));
+  ctx.fillStyle=`rgba(255,215,0,${pa})`;
+  ctx.font="9px 'Press Start 2P',monospace";
+  ctx.fillText("[ ПРОБЕЛ / тап ]", 0, 66);
+  ctx.textAlign="left"; ctx.restore();
 
-  // Click/tap to restart
   if (!G._gameoverBound) {
     G._gameoverBound = true;
     const handler = () => {
@@ -1080,12 +1086,12 @@ function drawGameOver() {
       fullReset();
     };
     canvas.addEventListener("click", handler, { passive: true });
-  }
+  } 
 }
 
 function fullReset() {
   G.lives  = 5;
-  G.codes  = [];
+  G.codes  = ['-', '-', '-'];
   G.level  = 0;
   G.screen = "intro";
   cam.x    = 0;
@@ -1096,81 +1102,121 @@ function fullReset() {
 // Level end card
 function drawLevelEnd() {
   const a = Math.min(1, 1 - G.levelEndTimer/160);
-  ctx.fillStyle = `rgba(0,0,0,${0.55*a})`; ctx.fillRect(0,0,W,H);
-  ctx.save();
-  ctx.translate(W/2, H/2);
-  const sc = 0.65 + 0.35*a;
-  ctx.scale(sc,sc);
+  ctx.fillStyle = `rgba(0,0,0,${0.6*a})`; ctx.fillRect(0,0,W,H);
+  ctx.save(); ctx.translate(W/2, H/2);
+  const sc = 0.6 + 0.4*a; ctx.scale(sc,sc);
 
-  ctx.fillStyle = "rgba(10,0,25,0.92)";
-  rr(ctx,-180,-70,360,140,18); ctx.fill();
+  // Card background
+  ctx.fillStyle = "rgba(6,0,20,0.96)";
+  rr(ctx,-190,-80,380,160,20); ctx.fill();
+  // Gold border with glow
+  ctx.shadowColor="#FFD700"; ctx.shadowBlur=18;
   ctx.strokeStyle="#FFD700"; ctx.lineWidth=3;
-  rr(ctx,-180,-70,360,140,18); ctx.stroke();
-  // Inner glow
-  ctx.strokeStyle="rgba(255,215,0,0.2)"; ctx.lineWidth=8;
-  rr(ctx,-180,-70,360,140,18); ctx.stroke();
+  rr(ctx,-190,-80,380,160,20); ctx.stroke();
+  ctx.shadowBlur=0;
+  // Inner subtle border
+  ctx.strokeStyle="rgba(255,215,0,0.2)"; ctx.lineWidth=7;
+  rr(ctx,-190,-80,380,160,20); ctx.stroke();
 
-  ctx.fillStyle="#FFD700"; ctx.font="bold 16px 'Press Start 2P',monospace"; ctx.textAlign="center";
-  ctx.fillText("✨ Уровень пройден! ✨",0,-32);
-  ctx.fillStyle="#FF6B9D"; ctx.font="bold 18px 'Press Start 2P',monospace";
-  ctx.fillText(G.levelEndMsg,0,12);
-  ctx.fillStyle="rgba(255,255,255,0.45)"; ctx.font="11px 'Press Start 2P',monospace";
-  ctx.fillText(G.level < levels.length-1 ? "Следующий уровень..." : "Финал...",0,50);
+  // "Уровень пройден"
+  txtGlow("Уровень пройден!", 0,-44,
+    "bold 13px 'Press Start 2P',monospace", "#FFD700","#FFB300",10);
+
+  // Code digit — big, glowing
+  const digitMatch = G.levelEndMsg.match(/\d+/);
+  const digitStr = digitMatch ? digitMatch[0] : "";
+  const label = `Получена цифра:`;
+  ctx.fillStyle="rgba(255,200,230,0.7)";
+  ctx.font="14px 'Press Start 2P',monospace"; ctx.textAlign="center";
+  ctx.fillText(label, 0, -4);
+  txtGlow(digitStr, 0, 42,
+    "bold 34px 'Press Start 2P',monospace","#FFFFFF","#FF6B9D",22);
+
+  // Next hint
+  ctx.fillStyle="rgba(255,255,255,0.35)"; ctx.font="9px 'Press Start 2P',monospace";
+  ctx.textAlign="center";
+  ctx.fillText(G.level < levels.length-1 ? "Следующий уровень..." : "Финал...", 0, 70);
   ctx.textAlign="left"; ctx.restore();
 }
 
 // Intro screen
 function drawIntro() {
   const t = G.tick;
-  const g = ctx.createLinearGradient(0,0,W,H);
-  g.addColorStop(0,"#12003d"); g.addColorStop(0.5,"#280055"); g.addColorStop(1,"#0d001a");
+
+  // Background
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,"#0d0020"); g.addColorStop(0.5,"#1e0040"); g.addColorStop(1,"#0a0015");
   ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
 
   // Stars
-  for (let i=0; i<30; i++) {
-    const sx = (i*97+13)%W, sy=(i*53+7)%H;
-    const a=0.3+0.7*Math.abs(Math.sin(t*0.04+i));
-    ctx.fillStyle=`rgba(255,230,180,${a})`; ctx.fillRect(sx,sy,2,2);
+  for (let i=0; i<40; i++) {
+    const sx=(i*83+17)%W, sy=(i*47+11)%H;
+    const a=0.25+0.75*Math.abs(Math.sin(t*0.035+i*0.7));
+    ctx.fillStyle=`rgba(255,230,200,${a})`; ctx.fillRect(sx,sy,i%3===0?2:1,i%3===0?2:1);
   }
-  // Floating hearts
-  for (let i=0; i<16; i++) {
-    const hx = ((i*67 + t*(i%2===0?0.4:-0.4))+W*2)%W;
-    const hy = 20 + (i%10)*36 + Math.sin(t*0.04+i)*6;
-    ctx.fillStyle=`rgba(255,80,130,${0.12+0.08*Math.sin(t*0.05+i)})`;
-    ctx.font=`${16+(i%3)*8}px serif`;
+  // Drifting hearts background
+  for (let i=0; i<18; i++) {
+    const hx = ((i*73 + t*(i%2===0?0.35:-0.35)) % (W+40) + W+40) % (W+40) - 20;
+    const hy = 18 + (i%9)*40 + Math.sin(t*0.038+i)*7;
+    const ha = 0.08+0.07*Math.sin(t*0.05+i);
+    ctx.fillStyle=`rgba(255,70,130,${ha})`;
+    ctx.font=`${14+(i%4)*7}px serif`; ctx.textAlign="left";
     ctx.fillText("♥",hx,hy);
   }
 
-  // Title
-  ctx.save();
-  ctx.translate(W/2, H/2 - 75);
-  ctx.fillStyle = "#FFD700";
-  ctx.shadowColor="#FF2D55"; ctx.shadowBlur=20;
-  ctx.font="bold 22px 'Press Start 2P', monospace"; ctx.textAlign="center";
-  ctx.fillText("💖 Сердце в каждом шаге 💖",0,0);
+  // ── Title ──
+  const ty = H/2 - 72;
+  // Outer glow pass
+  ctx.save(); ctx.translate(W/2, ty); ctx.textAlign="center";
+  ctx.font = "bold 22px 'Press Start 2P', monospace";
+  ctx.shadowColor="#FF0050"; ctx.shadowBlur=40;
+  ctx.fillStyle="rgba(255,0,80,0.4)"; ctx.fillText("Сердце в каждом шаге",0,0);
+  ctx.shadowBlur=18; ctx.fillStyle="#FF2D55"; ctx.fillText("Сердце в каждом шаге",0,0);
+  // Gold top layer
+  ctx.shadowColor="#FFD700"; ctx.shadowBlur=8;
+  ctx.fillStyle="#FFD700"; ctx.fillText("Сердце в каждом шаге",0,0);
   ctx.shadowBlur=0; ctx.restore();
 
-  ctx.fillStyle="rgba(255,255,255,0.7)"; ctx.font="8px 'Press Start 2P',monospace";
-  ctx.textAlign="center";
-  ctx.fillText("Пиксельное признание · 3 уровня · секретный код",W/2,H/2-40);
+  // Subtitle with cursive feel
+  ctx.save(); ctx.textAlign="center";
+  ctx.font = "italic 15px 'Pacifico', serif";
+  ctx.shadowColor="rgba(255,100,180,0.5)"; ctx.shadowBlur=8;
+  ctx.fillStyle="rgba(255,200,230,0.85)";
+  ctx.fillText("пиксельная игра · 3 уровня · секретный код", W/2, H/2-36);
+  ctx.shadowBlur=0; ctx.restore();
+
+  // Level progress dots
+  for (let i=0;i<3;i++) {
+    const dx = W/2-24+i*24, dy=H/2-10;
+    ctx.fillStyle = i<G.codes.length ? "#FFD700" : "rgba(255,255,255,0.15)";
+    ctx.beginPath(); ctx.arc(dx,dy,7,0,Math.PI*2); ctx.fill();
+    if (i<G.codes.length) {
+      ctx.fillStyle="#000"; ctx.font="bold 8px monospace"; ctx.textAlign="center";
+      ctx.fillText(i+1,dx,dy+3);
+    }
+  }
 
   // Play button
-  const btnW=200, btnH=50, bx=W/2-100, by=H/2+30;
-  const ps=1+0.06*Math.sin(t*0.09);
-  ctx.save();
-  ctx.translate(W/2, by+btnH/2); ctx.scale(ps,ps);
-  const bg = ctx.createLinearGradient(-100,-25,100,25);
-  bg.addColorStop(0,"#FF2D55"); bg.addColorStop(1,"#c0004a");
-  ctx.fillStyle=bg; rr(ctx,-100,-25,200,50,12); ctx.fill();
+  const btnW=210, btnH=52, bx=W/2-105, by=H/2+22;
+  const ps = 1+0.055*Math.sin(t*0.09);
+  ctx.save(); ctx.translate(W/2, by+btnH/2); ctx.scale(ps,ps);
+  // Button glow
+  ctx.shadowColor="#FF2D55"; ctx.shadowBlur=20;
+  const bg=ctx.createLinearGradient(-105,-26,105,26);
+  bg.addColorStop(0,"#FF2D55"); bg.addColorStop(1,"#aa0038");
+  ctx.fillStyle=bg; rr(ctx,-105,-26,210,52,14); ctx.fill();
+  ctx.shadowBlur=0;
   ctx.strokeStyle="#FFD700"; ctx.lineWidth=2;
-  rr(ctx,-100,-25,200,50,12); ctx.stroke();
-  ctx.fillStyle="#FFF"; ctx.font="bold 11px 'Press Start 2P',monospace"; ctx.textAlign="center";
-  ctx.fillText("▶  ИГРАТЬ",0,7);
-  ctx.restore();
-  ctx.textAlign="left";
+  rr(ctx,-105,-26,210,52,14); ctx.stroke();
+  // Button text
+  txtStroke("▶  ИГРАТЬ",0,9,"bold 12px 'Press Start 2P',monospace","#FFFFFF","rgba(0,0,0,0.4)",3);
+  ctx.restore(); ctx.textAlign="left";
 
-  ctx.fillStyle="rgba(255,255,255,0.35)"; ctx.font="10px Press Start 2P monospace"; ctx.textAlign="center";
-  ctx.fillText("Нажми кнопку или Space / Enter",W/2,H/2+100);
+  // Hint
+  const ha2 = 0.3+0.3*Math.sin(t*0.06);
+  ctx.fillStyle=`rgba(255,255,255,${ha2})`; ctx.font="9px 'Press Start 2P',monospace";
+  ctx.textAlign="center";
+  ctx.fillText("Нажми кнопку или  Space / Enter", W/2, H/2+95);
   ctx.textAlign="left";
 
   if (!G.introClickBound) {
@@ -1186,45 +1232,73 @@ function drawIntro() {
 
 // Win screen
 function drawWin() {
+  const t = G.tick;
+  // Background
   const g = ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,"#120030"); g.addColorStop(1,"#3d0066");
+  g.addColorStop(0,"#0a0020"); g.addColorStop(0.5,"#200040"); g.addColorStop(1,"#0a0015");
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
 
+  // Stars
+  for (let i=0;i<35;i++) {
+    const sx=(i*89+7)%W, sy=(i*41+13)%H;
+    const sa=0.2+0.8*Math.abs(Math.sin(t*0.04+i));
+    ctx.fillStyle=`rgba(255,220,180,${sa})`; ctx.fillRect(sx,sy,i%4===0?2:1,i%4===0?2:1);
+  }
+
+  // Confetti
   for (const c of confetti) {
     ctx.save(); ctx.translate(c.x,c.y); ctx.rotate(c.rot);
     ctx.fillStyle=c.color; ctx.fillRect(-c.size/2,-c.size*0.35,c.size,c.size*0.6);
     ctx.restore();
   }
+  // Falling hearts
   for (const h of fallingHearts) {
-    ctx.fillStyle=`rgba(255,80,120,${h.alpha})`;
-    ctx.font=`${h.size}px serif`; ctx.fillText("♥",h.x,h.y);
+    ctx.fillStyle=`rgba(255,80,130,${h.alpha})`;
+    ctx.font=`${h.size}px serif`; ctx.textAlign="left"; ctx.fillText("♥",h.x,h.y);
   }
 
+  // Card
   ctx.save(); ctx.translate(W/2, H/2);
-
-  ctx.fillStyle="rgba(5,0,18,0.9)";
-  rr(ctx,-300,-155,600,310,22); ctx.fill();
+  ctx.fillStyle="rgba(4,0,14,0.93)";
+  rr(ctx,-305,-158,610,316,24); ctx.fill();
   // Glow border
-  ctx.shadowColor="#FF2D55"; ctx.shadowBlur=25;
+  ctx.shadowColor="#FF2D55"; ctx.shadowBlur=28;
   ctx.strokeStyle="#FF2D55"; ctx.lineWidth=3;
-  rr(ctx,-300,-155,600,310,22); ctx.stroke();
+  rr(ctx,-305,-158,610,316,24); ctx.stroke();
   ctx.shadowBlur=0;
-  // Inner border
-  ctx.strokeStyle="rgba(255,215,0,0.3)"; ctx.lineWidth=1;
-  rr(ctx,-295,-150,590,300,20); ctx.stroke();
+  ctx.strokeStyle="rgba(255,215,0,0.25)"; ctx.lineWidth=1;
+  rr(ctx,-300,-153,600,306,22); ctx.stroke();
 
-  ctx.fillStyle="#FFD700"; ctx.font="bold 18px 'Press Start 2P',monospace"; ctx.textAlign="center";
-  ctx.fillText("💖 Все уровни пройдены! 💖",0,-118);
+  // Title
+  txtGlow("Все уровни пройдены!", 0,-125,
+    "bold 14px 'Press Start 2P',monospace","#FFD700","#FFB300",14);
 
+  // Message lines — Pacifico font, glowing
   const lines = gameConfig.finalMessage.split("\n");
-  lines.forEach((ln,i) => {
-    ctx.fillStyle = i===lines.length-1 ? "#FF6B9D" : "#FFF";
-    ctx.font = `${i===lines.length-1?"bold ":""}15px 'Press Start 2P',monospace`;
-    ctx.fillText(ln, 0, -70 + i*30);
+  const lineColors = ["#FFFFFF","#FFE8F0","#FFFFFF","#FFE8F0","#FF8EC0"];
+  const glowCols   = ["rgba(255,255,255,0.1)","rgba(255,180,200,0.2)",
+                       "rgba(255,255,255,0.1)","rgba(255,180,200,0.2)","rgba(255,80,150,0.5)"];
+  lines.forEach((ln, i) => {
+    const isLast = i === lines.length - 1;
+    const size = isLast ? 22 : 17;
+    const font = isLast
+      ? `bold ${size}px 'Pacifico', cursive`
+      : `${size}px 'Pacifico', cursive`;
+    const yOff = -72 + i * 34;
+    // Soft glow
+    ctx.save(); ctx.textAlign="center";
+    ctx.font = font;
+    ctx.shadowColor = isLast ? "#FF4488" : "rgba(255,220,240,0.3)";
+    ctx.shadowBlur  = isLast ? 16 : 6;
+    ctx.fillStyle   = lineColors[i] || "#FFF";
+    ctx.fillText(ln, 0, yOff);
+    ctx.shadowBlur=0; ctx.restore();
   });
 
-  const ps = 1.3+0.25*Math.sin(G.tick*0.1);
-  ctx.font=`${40*ps}px serif`; ctx.fillText("❤️",0,140);
+  // Pulsing big heart
+  const ps = 1.3+0.28*Math.sin(t*0.1);
+  ctx.font=`${44*ps}px serif`; ctx.textAlign="center";
+  ctx.fillText("❤️", 0, 138);
   ctx.textAlign="left"; ctx.restore();
 }
 
@@ -1242,6 +1316,27 @@ function lighten(hex, amt) {
   const g=Math.min(255,((n>>8)&0xFF)+amt);
   const b=Math.min(255,(n&0xFF)+amt);
   return `rgb(${r},${g},${b})`;
+}
+
+// Text helpers
+// Glowing text (fill + blur shadow layers)
+function txtGlow(text, x, y, font, fill, glowColor, blur) {
+  ctx.save();
+  ctx.font = font; ctx.textAlign = "center";
+  ctx.shadowColor = glowColor; ctx.shadowBlur = blur * 2;
+  ctx.fillStyle = glowColor; ctx.fillText(text, x, y);
+  ctx.shadowBlur = blur;
+  ctx.fillStyle = fill; ctx.fillText(text, x, y);
+  ctx.shadowBlur = 0; ctx.restore();
+}
+// Outlined text
+function txtStroke(text, x, y, font, fill, stroke, lw) {
+  ctx.save();
+  ctx.font = font; ctx.textAlign = "center";
+  ctx.strokeStyle = stroke; ctx.lineWidth = lw;
+  ctx.lineJoin = "round"; ctx.strokeText(text, x, y);
+  ctx.fillStyle = fill; ctx.fillText(text, x, y);
+  ctx.restore();
 }
 
 //  KEY ACTIONS

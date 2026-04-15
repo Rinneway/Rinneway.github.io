@@ -96,8 +96,8 @@ const levels = [
       { x: 340, y: 270, w: 70, h: 16, color: "#D2691E", top: "#E8824A", dx: 1.6, minX: 280, maxX: 450 },
       { x: 500, y: 250, w: 70, h: 16, color: "#D2691E", top: "#E8824A", dx: 1.2, minX: 520, maxX: 670 },
       { x: 870, y: 260, w: 70, h: 16, color: "#D2691E", top: "#E8824A", dx: 2.0, minX: 860, maxX: 1000 },
-      { x: 1100,  y: 290, w: 70, h: 16, color: "#D2691E", top: "E8824A", dx: 0, dy: 1.2, minY: 150, maxY: 400 },
-      { x: 1535,  y: 290, w: 70, h: 16, color: "#D2691E", top: "E8824A", dx: 0, dy: 1.2, minY: 210, maxY: 320 },
+      { x: 1100,  y: 290, w: 70, h: 16, color: "#D2691E", top: "#E8824A", dx: 0, dy: 1.2, minY: 150, maxY: 400 },
+      { x: 1535,  y: 290, w: 70, h: 16, color: "#D2691E", top: "#E8824A", dx: 0, dy: 1.2, minY: 210, maxY: 320 },
     ],
 
     springs: [
@@ -131,84 +131,108 @@ const levels = [
   // УРОВЕНЬ 3 — «Звёздная ночь»
   {
     name: "Звёздная ночь",
-    worldW: 3000,
-    bgColors: ["#0A0E2A", "#1C2556"],
-    fogColor: "rgba(60,40,120,0.12)",
-    start: { x: 70, y: 300 },
+    worldW: 2200,
+    bgColors: ["#050A20", "#0F1840"],
+    fogColor: "rgba(30,20,80,0.10)",
+    start: { x: 60, y: 300 },
 
     checkpoints: [
-      { x: 780, y: 320, w: 20, h: 40 }
+      { x: 994, y: 240, w: 20, h: 40 }
     ],
 
     platforms: [
-      // Земля
-      { x: 0,    y: 360, w: 280,  h: 40, color: "#1e3050", top: "#2e4878" },
-      { x: 360,  y: 360, w: 180,  h: 40, color: "#1e3050", top: "#2e4878" },
-      { x: 660,  y: 360, w: 160,  h: 40, color: "#1e3050", top: "#2e4878" },
-      { x: 960,  y: 360, w: 170,  h: 40, color: "#1e3050", top: "#2e4878" },
-      { x: 1280, y: 360, w: 320,  h: 40, color: "#1e3050", top: "#2e4878" },
+      //ЗЕМЛЯ
+      { x: 0,    y: 360, w: 360,  h: 40, color: "#1e3050", top: "#2e4878" }, 
+      { x: 450,  y: 360, w: 360,  h: 40, color: "#1e3050", top: "#2e4878" },  
+      { x: 900,  y: 360, w: 320,  h: 40, color: "#1e3050", top: "#2e4878" },  
+      { x: 1310, y: 360, w: 310,  h: 40, color: "#1e3050", top: "#2e4878" }, 
+      { x: 1700, y: 360, w: 500,  h: 40, color: "#1e3050", top: "#2e4878" },
 
-      // Платформы
-      { x: 100,  y: 310, w: 80,   h: 16, color: "#2e4878", top: "#4A6FA5" },
-      { x: 220,  y: 265, w: 80,   h: 16, color: "#2e4878", top: "#4A6FA5" },
-      { x: 380,  y: 280, w: 70,   h: 16, color: "#2e4878", top: "#4A6FA5" },
-      { x: 500,  y: 235, w: 70,   h: 16, color: "#2e4878", top: "#4A6FA5" },
-      { x: 620,  y: 195, w: 70,   h: 16, color: "#2e4878", top: "#4A6FA5" },
+      //ТРУБА 1
+      { x: 305,  y: 292, w: 44,   h: 68, color: "#1a5e1a", top: "#28a028" },
+      { x: 300,  y: 286, w: 54,   h: 12, color: "#1a5e1a", top: "#32bb32" },
 
-      // Средняя секция
-      { x: 720,  y: 250, w: 80,   h: 16, color: "#5B2C8D", top: "#7D3CB8" },
-      { x: 840,  y: 200, w: 80,   h: 16, color: "#5B2C8D", top: "#7D3CB8" },
-      { x: 980,  y: 240, w: 80,   h: 16, color: "#5B2C8D", top: "#7D3CB8" },
-      { x: 1100, y: 290, w: 80,   h: 16, color: "#5B2C8D", top: "#7D3CB8" },
+      // КИРПИЧНЫЕ БЛОКИ — секция 1
+      { x: 100,  y: 290, w: 48,   h: 16, color: "#5c3a10", top: "#d4a020" },
+      { x: 192,  y: 255, w: 32,   h: 16, color: "#5c3a10", top: "#d4a020" },
 
-      // Финальная секция — тесные прыжки
-      { x: 1290, y: 300, w: 70,   h: 16, color: "#1a3060", top: "#2e5590" },
-      { x: 1400, y: 255, w: 70,   h: 16, color: "#1a3060", top: "#2e5590" },
-      { x: 1490, y: 210, w: 90,   h: 16, color: "#1a3060", top: "#2e5590" },
+      // КИРПИЧНЫЕ БЛОКИ — секция 2
+      { x: 468,  y: 285, w: 64,   h: 16, color: "#5c3a10", top: "#d4a020" },
+      { x: 576,  y: 250, w: 48,   h: 16, color: "#5c3a10", top: "#d4a020" },
+      { x: 676,  y: 285, w: 48,   h: 16, color: "#5c3a10", top: "#d4a020" },
+
+      // ТРУБА 2
+      { x: 758,  y: 290, w: 44,   h: 70, color: "#1a5e1a", top: "#28a028" },
+      { x: 753,  y: 283, w: 54,   h: 12, color: "#1a5e1a", top: "#32bb32" },
+
+      // КИРПИЧНЫЕ БЛОКИ — секция 3
+      { x: 916,  y: 285, w: 64,   h: 16, color: "#5c3a10", top: "#d4a020" },
+      { x: 996,  y: 248, w: 48,   h: 16, color: "#5c3a10", top: "#d4a020" },
+      { x: 1076, y: 285, w: 48,   h: 16, color: "#5c3a10", top: "#d4a020" },
+
+      // ТРУБА 3
+      { x: 1155, y: 276, w: 44,   h: 84, color: "#1a5e1a", top: "#28a028" },
+      { x: 1150, y: 268, w: 54,   h: 12, color: "#1a5e1a", top: "#32bb32" },
+
+      // КИРПИЧНЫЕ БЛОКИ — секция 4
+      { x: 1325, y: 285, w: 64,   h: 16, color: "#5c3a10", top: "#d4a020" },
+      { x: 1408, y: 250, w: 64,   h: 16, color: "#5c3a10", top: "#d4a020" },
+      { x: 1508, y: 285, w: 64,   h: 16, color: "#5c3a10", top: "#d4a020" },
+
+      //ЛЕСТНИЦА
+      { x: 1725, y: 340, w: 50,   h: 20,  color: "#2e4878", top: "#4A6FA5" },
+      { x: 1775, y: 310, w: 50,   h: 50,  color: "#2e4878", top: "#4A6FA5" },
+      { x: 1825, y: 280, w: 50,   h: 80,  color: "#2e4878", top: "#4A6FA5" },
+      { x: 1875, y: 250, w: 50,   h: 110, color: "#2e4878", top: "#4A6FA5" },
+      { x: 1925, y: 220, w: 50,   h: 140, color: "#2e4878", top: "#4A6FA5" },  // вершина
+      { x: 1975, y: 250, w: 50,   h: 110, color: "#2e4878", top: "#4A6FA5" },
+      { x: 2025, y: 280, w: 50,   h: 80,  color: "#2e4878", top: "#4A6FA5" },
+      { x: 2075, y: 310, w: 50,   h: 50,  color: "#2e4878", top: "#4A6FA5" },
     ],
 
     movingPlatforms: [
-      { x: 310,  y: 290, w: 75, h: 16, color: "#6C3483", top: "#9B59B6", dx: 0, dy: 1.5, minY: 250, maxY: 340 },
-      { x: 890,  y: 230, w: 75, h: 16, color: "#6C3483", top: "#9B59B6", dx: 1.8, minX: 830, maxX: 960 },
-      { x: 1200, y: 250, w: 75, h: 16, color: "#6C3483", top: "#9B59B6", dx: 0, dy: -1.6, minY: 200, maxY: 310 },
+      { x: 362, y: 302, w: 72, h: 16, color: "#6C3483", top: "#9B59B6", dx: 1.6, minX: 355, maxX: 452 },
+      { x: 1228, y: 295, w: 72, h: 16, color: "#6C3483", top: "#9B59B6", dx: 0, dy: 1.5, minY: 240, maxY: 352 },
     ],
 
     springs: [
-      { x: 680, y: 344 },
-      { x: 975, y: 344 },
+      { x: 820, y: 360 },   
+      { x: 1636, y: 360 }, 
     ],
 
     enemies: [
-      { x: 240, y: 249, w: 20, h: 20, dx: 0.9, minX: 220, maxX: 285, color: "#8e44ad", hp: 3, bump: false },
-      { x: 520, y: 219, w: 20, h: 20, dx: 1.2, minX: 500, maxX: 570, color: "#8e44ad", hp: 3, bump: false },
-      { x: 860, y: 184, w: 20, h: 20, dx: 1.5, minX: 840, maxX: 900, color: "#8e44ad", hp: 3, bump: false },
-      { x: 1110,y: 274, w: 20, h: 20, dx: 1.0, minX: 1060, maxX: 1170, color: "#8e44ad", hp: 3, bump: false },
+      { x: 175, y: 340, w: 20, h: 20, dx: 0.9,  minX: 0,    maxX: 295,  color: "#8e44ad", hp: 3, bump: false },
+      { x: 545, y: 340, w: 20, h: 20, dx: 1.1,  minX: 450,  maxX: 750,  color: "#8e44ad", hp: 3, bump: false },
+      { x: 955, y: 340, w: 20, h: 20, dx: 1.0,  minX: 900,  maxX: 1115, color: "#8e44ad", hp: 3, bump: false },
+      { x: 1390,y: 340, w: 20, h: 20, dx: 1.2,  minX: 1310, maxX: 1610, color: "#8e44ad", hp: 3, bump: false },
     ],
 
     hearts: [
-      { x: 135,  y: 282 },
-      { x: 258,  y: 237 },
-      { x: 540,  y: 207 },
-      { x: 875,  y: 172 },
-      { x: 1020, y: 212 },
-      { x: 1440, y: 225, special: true }, // пульсирующее финальное ❤️
+      { x: 118,  y: 263 },    
+      { x: 204,  y: 228 },   
+      { x: 592,  y: 223 },    
+      { x: 1008, y: 221 },  
+      { x: 1423, y: 223 },    
+      { x: 1950, y: 193, special: true }, 
     ],
 
-    portal: { x: 1510, y: 278 },
+    portal: { x: 2130, y: 323 },
 
     decorations: [
-      { type: "moon", x: 700, y: 55 },
-      { type: "star", x: 50,   y: 20 },
-      { type: "star", x: 180,  y: 10 },
-      { type: "star", x: 320,  y: 35 },
-      { type: "star", x: 470,  y: 15 },
-      { type: "star", x: 600,  y: 45 },
-      { type: "star", x: 750,  y: 8  },
-      { type: "star", x: 900,  y: 30 },
-      { type: "star", x: 1050, y: 18 },
-      { type: "star", x: 1200, y: 42 },
-      { type: "star", x: 1380, y: 12 },
-      { type: "star", x: 1520, y: 55 },
+      { type: "moon",  x: 680,  y: 55 },
+      { type: "star",  x: 50,   y: 18 },
+      { type: "star",  x: 150,  y: 8  },
+      { type: "star",  x: 290,  y: 32 },
+      { type: "star",  x: 430,  y: 14 },
+      { type: "star",  x: 590,  y: 42 },
+      { type: "star",  x: 760,  y: 7  },
+      { type: "star",  x: 920,  y: 28 },
+      { type: "star",  x: 1080, y: 16 },
+      { type: "star",  x: 1260, y: 38 },
+      { type: "star",  x: 1460, y: 11 },
+      { type: "star",  x: 1680, y: 46 },
+      { type: "star",  x: 1880, y: 22 },
+      { type: "star",  x: 2080, y: 40 },
     ],
   },
 ];

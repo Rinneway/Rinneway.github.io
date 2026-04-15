@@ -10,9 +10,9 @@ const cam = { x: 0, y: 0, shakeX: 0, shakeY: 0, shakeTimer: 0 };
 // State
 const G = {
   screen: "intro",   // intro | playing | levelEnd | gameover | lock | win
-  level:  0,
+  level:  2,
   codes:  ['-', '-', '-'],
-  lives:  4,
+  lives:  gameConfig.lives,
   tick:   0,
   levelEndTimer: 0,
   levelEndMsg:   "",
@@ -304,6 +304,7 @@ function update(dt) {
     if (G.levelEndTimer <= 0) advanceLevel();
     updateParticles(dt);
   } else if (G.screen === "gameover") {
+    // ничего — ждём нажатия
   } else if (G.screen === "win") {
     updateFalling(dt);
     updateConfetti(dt);
@@ -503,9 +504,8 @@ function updateEnemies(dt) {
         e.hp--;
         if (e.hp <= 0) {
           enemies = enemies.filter(en => en !== e);
-        } else {
-          e.bump = true;
         }
+        
       } else {
         // Enemy bumps player back
         P.vx = P.x < e.x + e.w/2 ? -5 : 5;
@@ -787,6 +787,7 @@ function drawEnemy(e, cx) {
   if (e.stunned > 0) {
     ctx.globalAlpha = 0.4 + 0.3*Math.sin(t*0.3);
   }
+  
   // Shadow
   ctx.fillStyle = "rgba(0,0,0,0.2)";
   ctx.beginPath(); ctx.ellipse(0, 2, 10, 3, 0, 0, Math.PI*2); ctx.fill();
@@ -808,12 +809,6 @@ function drawEnemy(e, cx) {
   const legOff = e.stunned ? 0 : Math.sin(t*0.25)*4;
   ctx.fillStyle = e.color;
   ctx.fillRect(-6, 0, 4, 6+legOff); ctx.fillRect(2, 0, 4, 6-legOff);
-  if (e.bump) {
-    ctx.fillStyle = "rgba(255,220,0,0.8)";
-    ctx.font = "9px serif"; ctx.textAlign="center";
-    ctx.fillText(e.hp+"/3",0,-5); ctx.textAlign="left";
-    e.bump = false;
-  }
   ctx.restore();
   
 }
@@ -1012,7 +1007,7 @@ function drawHUD() {
 
   // Left: жизни
   ctx.font = "15px serif";
-  for (let i = 0; i < G.lives; i++) {
+  for (let i = 0; i < gameConfig.lives; i++) {
     ctx.fillStyle = i < G.lives ? "#FF2D55" : "rgba(255,255,255,0.18)";
     ctx.fillText(i < G.lives ? "♥" : "♡", 10 + i * 20, 23);
   }
@@ -1090,7 +1085,7 @@ function drawGameOver() {
 }
 
 function fullReset() {
-  G.lives  = 5;
+  G.lives  = gameConfig.lives;
   G.codes  = ['-', '-', '-'];
   G.level  = 0;
   G.screen = "intro";
@@ -1118,7 +1113,6 @@ function drawLevelEnd() {
   ctx.strokeStyle="rgba(255,215,0,0.2)"; ctx.lineWidth=7;
   rr(ctx,-190,-80,380,160,20); ctx.stroke();
 
-  // "Уровень пройден"
   txtGlow("Уровень пройден!", 0,-44,
     "bold 13px 'Press Start 2P',monospace", "#FFD700","#FFB300",10);
 
@@ -1164,7 +1158,7 @@ function drawIntro() {
     ctx.fillText("♥",hx,hy);
   }
 
-  // ── Title ──
+  // Title
   const ty = H/2 - 72;
   // Outer glow pass
   ctx.save(); ctx.translate(W/2, ty); ctx.textAlign="center";

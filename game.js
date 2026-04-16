@@ -23,7 +23,7 @@ const G = {
 };
 
 // Player
-const P = {
+const P = { 
   x: 60, y: 300,
   w: 16, h: 24,
   vx: 0, vy: 0,
@@ -74,6 +74,23 @@ window.addEventListener("load", () => {
   window.addEventListener("keyup",   e => { keys[e.code] = false; });
 
   setupMob();
+
+  const _iosUnlock = () => {
+    if (!G.audioCtx) return;
+    if (G.audioCtx.state === "suspended") {
+      G.audioCtx.resume().then(() => {
+        G.soundReady = true;
+        // Restart music if it was pending but silent
+        if (_musicTrack >= 0 && !_musicTimer) _musicTick();
+      }).catch(() => {});
+    } else if (G.audioCtx.state === "running") {
+      G.soundReady = true;
+    }
+  };
+  ["touchstart","touchend","pointerdown","mousedown","keydown"].forEach(ev =>
+    document.addEventListener(ev, _iosUnlock, { passive: true })
+  );
+
   requestAnimationFrame(loop);
 });
 
@@ -103,9 +120,18 @@ function setupMob() {
 
 //  AUDIO
 function initAudio() {
-  if (G.audioCtx || !gameConfig.soundEnabled) return;
-  G.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  G.soundReady = true;
+  if (!gameConfig.soundEnabled) return;
+  if (!G.audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    G.audioCtx = new AC();
+  }
+
+  if (G.audioCtx.state === "running") {
+    G.soundReady = true;
+  } else if (G.audioCtx.state === "suspended") {
+    G.audioCtx.resume().then(() => { G.soundReady = true; }).catch(() => {});
+  }
 }
 function tone(f, t="sine", d=0.15, v=0.28) {
   if (!G.soundReady) return;
@@ -137,53 +163,78 @@ const snd = {
 // Три трека: [частота мелодии, частота баса] на каждый шаг. 0 = пауза.
 const MUSIC_TRACKS = [
   {
-    // Уровень 1 — «Весёлое утро» (до-мажор, бодро)
-    tempo: 170,
+    // Уровень 1 «Первое касание» до-мажор
+    // Чередуются восьмые и четверти, чуть джазово.
+    tempo: 160,
     melody: [
-      523,0,659,0, 784,0,880,0,
-      784,659,0,523, 659,0,784,0,
-      698,0,784,0,  659,0,587,0,
-      523,0,659,0,  784,0,1047,0,
+      523, 0, 659, 784,   880, 784, 659, 0,
+      523, 659, 784, 0,   1047,0, 880, 784,
+      698, 0, 784, 0,     659, 587, 523, 0,
+      440, 523, 659, 0,   784, 659, 523, 0,
+      523, 0, 659, 784,   880, 0, 1047,0,
+      784, 698, 659, 0,   587, 523, 494, 0,
+      523, 0, 659, 784,   1047,880, 784, 0,
+      659, 523, 392, 0,   523, 0,  0,   0,
     ],
     bass: [
-      262,0,262,0, 262,0,262,0,
-      196,0,196,0, 196,0,196,0,
-      175,0,175,0, 175,0,175,0,
-      220,0,220,0, 220,0,220,0,
+      262, 0, 262, 0,   330, 0, 262, 0,
+      196, 0, 196, 0,   196, 0, 196, 0,
+      175, 0, 175, 0,   220, 0, 175, 0,
+      220, 0, 220, 0,   262, 0, 220, 0,
+      262, 0, 262, 0,   330, 0, 262, 0,
+      196, 0, 196, 0,   175, 0, 165, 0,
+      262, 0, 262, 0,   330, 0, 262, 0,
+      220, 0, 196, 0,   262, 0,  0,  0,
     ],
   },
   {
-    // Уровень 2 — «Закатные волны» (пентатоника, мягко)
-    tempo: 215,
+    // Уровень 2 «Закатная мелодия» ля-минор, лиричный закат
+    // Плавные ходы, немного «романтично».
+    tempo: 200,
     melody: [
-      440,0,494,0,  523,0,587,0,
-      659,0,587,523, 494,0,440,0,
-      392,0,440,0,  494,0,523,0,
-      587,0,523,0,  494,440,0,392,
-      440,0,494,0,  523,587,0,659,
-      587,0,523,0,  494,0,440,0,
+      440, 0, 523, 0,   587, 0, 659, 0,
+      587, 523, 0, 440, 392, 0, 440, 0,
+      494, 0, 587, 0,   659, 698, 0, 784,
+      659, 587, 0, 523, 494, 0, 440, 0,
+      392, 440, 494, 0, 523, 0, 587, 0,
+      659, 0, 784, 0,   880, 784, 0, 659,
+      587, 0, 523, 0,   494, 440, 0, 392,
+      440, 0, 392, 0,   440, 0,  0,  0,
     ],
     bass: [
-      220,0,220,0, 220,0,220,0,
-      165,0,165,0, 165,0,165,0,
-      196,0,196,0, 196,0,196,0,
-      175,0,175,0, 175,0,175,0,
-      220,0,220,0, 220,0,220,0,
-      196,0,196,0, 220,0,220,0,
+      220, 0, 220, 0,   220, 0, 220, 0,
+      175, 0, 175, 0,   175, 0, 175, 0,
+      247, 0, 247, 0,   247, 0, 247, 0,
+      220, 0, 220, 0,   220, 0, 220, 0,
+      196, 0, 196, 0,   220, 0, 220, 0,
+      220, 0, 247, 0,   262, 0, 247, 0,
+      220, 0, 196, 0,   165, 0, 175, 0,
+      220, 0, 196, 0,   220, 0,  0,  0,
     ],
   },
   {
-    // Уровень 3 — «Звёздная ночь» (приключение, бодрый марш)
-    tempo: 155,
+    // Уровень 3 «Звёздная ночь» ночное приключение, быстро
+    // Вдохновлено Mario overworld: пунктирный ритм + прыгающая мелодия.
+    tempo: 135,
     melody: [
-      659,0,659,0,  0,523,659,0,
-      784,0,0,0,    392,0,0,0,
-      523,0,0,392,  0,0,330,0,
-      349,0,0,330,  0,0,294,0,
-      330,0,0,0,    392,0,523,0,
-      587,0,659,0,  698,0,784,0,
-      659,523,494,0, 440,0,0,0,
-      392,0,523,659, 784,659,0,0,
+      659, 0, 659, 0,    0, 523, 659,  0,
+      784, 0,   0, 0,  392,   0,   0,  0,
+      523, 0,   0,392,   0,   0, 330,  0,
+      349, 0,   0,330,   0,   0, 294,  0,
+      330, 0,   0,  0,  392,   0, 523,  0,
+      587, 0, 659, 0,  698,   0, 784,  0,
+      659,523,494, 0,  440,   0,   0,  0,
+      392, 0, 523,659,  784, 659,   0,  0,
+
+      // второй куплет: поднимаем октаву
+      0, 523, 523, 0,   659, 0, 523, 0,
+      440, 0, 392, 0,   440, 0,   0, 0,
+      0, 523, 523, 0,   659, 784, 0, 0,
+      523, 0,   0, 0,     0, 0,   0, 0,
+      0, 523, 523, 0,   659, 0, 523, 0,
+      440, 0, 392, 0,   330, 0,   0, 0,
+      494, 0, 494, 0,   440, 0, 392, 0,
+      330, 262, 0, 0,   523, 0,   0, 0,
     ],
     bass: [
       131,0,131,0,  131,0,131,0,
@@ -193,7 +244,16 @@ const MUSIC_TRACKS = [
       131,0,131,0,  196,0,196,0,
       220,0,220,0,  247,0,262,0,
       220,0,220,0,  220,0,220,0,
-      196,0,196,0,  262,0,0,0,
+      196,0,196,0,  262,0,  0,0,
+
+      131,0,131,0,  131,0,131,0,
+      175,0,175,0,  175,0,175,0,
+      131,0,131,0,  196,0,196,0,
+      220,0,220,0,  220,0,220,0,
+      131,0,131,0,  131,0,131,0,
+      175,0,175,0,  147,0,147,0,
+      165,0,165,0,  175,0,165,0,
+      147,0,131,0,  196,0,  0,0,
     ],
   },
 ];
@@ -207,7 +267,18 @@ function musicStart(idx) {
   musicStop();
   _musicTrack = idx;
   _musicStep  = 0;
-  _musicTick();
+
+  if (G.audioCtx && G.audioCtx.state === "suspended") {
+    G.audioCtx.resume().then(() => {
+      G.soundReady = true;
+      if (_musicTrack === idx) _musicTick();
+    }).catch(() => {
+      // Still tick — notes will silently no-op until context is ready
+      _musicTick();
+    });
+  } else {
+    _musicTick();
+  }
 }
 
 function musicStop() {
@@ -304,7 +375,7 @@ function update(dt) {
     if (G.levelEndTimer <= 0) advanceLevel();
     updateParticles(dt);
   } else if (G.screen === "gameover") {
-    // ничего — ждём нажатия
+ 
   } else if (G.screen === "win") {
     updateFalling(dt);
     updateConfetti(dt);
@@ -505,13 +576,12 @@ function updateEnemies(dt) {
         if (e.hp <= 0) {
           enemies = enemies.filter(en => en !== e);
         }
-        
       } else {
         // Enemy bumps player back
         P.vx = P.x < e.x + e.w/2 ? -5 : 5;
         P.vy = -4;
         P.stunTimer = 40;
-        P.blinkTimer = 120;
+        P.blinkTimer = 150;
         snd.bump();
         shakeScreen(4, 12);
         G.lives--;
@@ -787,7 +857,6 @@ function drawEnemy(e, cx) {
   if (e.stunned > 0) {
     ctx.globalAlpha = 0.4 + 0.3*Math.sin(t*0.3);
   }
-  
   // Shadow
   ctx.fillStyle = "rgba(0,0,0,0.2)";
   ctx.beginPath(); ctx.ellipse(0, 2, 10, 3, 0, 0, Math.PI*2); ctx.fill();
@@ -1081,7 +1150,7 @@ function drawGameOver() {
       fullReset();
     };
     canvas.addEventListener("click", handler, { passive: true });
-  } 
+  }
 }
 
 function fullReset() {
@@ -1113,6 +1182,7 @@ function drawLevelEnd() {
   ctx.strokeStyle="rgba(255,215,0,0.2)"; ctx.lineWidth=7;
   rr(ctx,-190,-80,380,160,20); ctx.stroke();
 
+  // "Уровень пройден"
   txtGlow("Уровень пройден!", 0,-44,
     "bold 13px 'Press Start 2P',monospace", "#FFD700","#FFB300",10);
 
@@ -1158,7 +1228,7 @@ function drawIntro() {
     ctx.fillText("♥",hx,hy);
   }
 
-  // Title
+  // ── Title ──
   const ty = H/2 - 72;
   // Outer glow pass
   ctx.save(); ctx.translate(W/2, ty); ctx.textAlign="center";
@@ -1312,7 +1382,6 @@ function lighten(hex, amt) {
   return `rgb(${r},${g},${b})`;
 }
 
-// Text helpers
 // Glowing text (fill + blur shadow layers)
 function txtGlow(text, x, y, font, fill, glowColor, blur) {
   ctx.save();

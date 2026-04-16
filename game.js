@@ -75,27 +75,36 @@ window.addEventListener("load", () => {
 
   setupMob();
 
-  const _iosUnlock = () => {
-    if (!G.audioCtx) return;
-    if (G.audioCtx.state === "suspended") {
-      G.audioCtx.resume().then(() => {
-        G.soundReady = true;
-        // Restart music if it was pending but silent
-        if (_musicTrack >= 0 && !_musicTimer) _musicTick();
-      }).catch(() => {});
-    } else if (G.audioCtx.state === "running") {
-      G.soundReady = true;
-    }
-  };
+  // Every user gesture tries to unlock audio — initAudio handles the rest
+  const _iosUnlock = () => { initAudio(); };
   ["touchstart","touchend","pointerdown","mousedown","keydown"].forEach(ev =>
     document.addEventListener(ev, _iosUnlock, { passive: true })
   );
+
+  // Non-passive touchstart on canvas: eliminates iOS 300ms click delay
+  // and ensures audio unlock fires before loadLevel on the play button tap
+  canvas.addEventListener("touchstart", e => {
+    initAudio();
+    // Translate touch to a synthetic click position check
+    const r = canvas.getBoundingClientRect();
+    const t0 = e.changedTouches[0];
+    canvas.dispatchEvent(new MouseEvent("click", {
+      clientX: t0.clientX, clientY: t0.clientY, bubbles: true
+    }));
+    e.preventDefault();
+  }, { passive: false });
 
   requestAnimationFrame(loop);
 });
 
 function resize() {
-  scale = Math.min(window.innerWidth / W, window.innerHeight / H, 2);
+  // On touch devices in portrait, reserve space for on-screen controls
+  const hasTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  const portrait = window.innerWidth < window.innerHeight;
+  // Controls take ~110px. In landscape they sit outside the canvas area.
+  const ctrlReserve = (hasTouch && portrait) ? 110 : 0;
+  const availH = window.innerHeight - ctrlReserve;
+  scale = Math.min(window.innerWidth / W, availH / H, 2);
   canvas.style.width  = (W * scale) + "px";
   canvas.style.height = (H * scale) + "px";
 }
@@ -119,6 +128,10 @@ function setupMob() {
 }
 
 //  AUDIO
+// ALL within the same synchronous user-gesture call stack.
+// We also keep a _pendingMusicTrack so music queues up before unlock.
+let _pendingMusicTrack = -1;
+
 function initAudio() {
   if (!gameConfig.soundEnabled) return;
   if (!G.audioCtx) {
@@ -126,11 +139,33 @@ function initAudio() {
     if (!AC) return;
     G.audioCtx = new AC();
   }
+  _tryUnlockAudio();
+}
 
-  if (G.audioCtx.state === "running") {
-    G.soundReady = true;
-  } else if (G.audioCtx.state === "suspended") {
-    G.audioCtx.resume().then(() => { G.soundReady = true; }).catch(() => {});
+function _tryUnlockAudio() {
+  const ac = G.audioCtx;
+  if (!ac) return;
+  // The silent 1-sample buffer trick forces iOS to open the audio pipeline
+  try {
+    const buf = ac.createBuffer(1, 1, 22050);
+    const src = ac.createBufferSource();
+    src.buffer = buf; src.connect(ac.destination); src.start(0);
+  } catch(e) {}
+  // Now resume if still suspended
+  if (ac.state === "running") {
+    if (!G.soundReady) { G.soundReady = true; _flushPendingMusic(); }
+  } else if (ac.state === "suspended") {
+    ac.resume().then(() => {
+      G.soundReady = true; _flushPendingMusic();
+    }).catch(() => {});
+  }
+}
+
+function _flushPendingMusic() {
+  if (_pendingMusicTrack >= 0) {
+    const idx = _pendingMusicTrack;
+    _pendingMusicTrack = -1;
+    _musicTrack = idx; _musicStep = 0; _musicTick();
   }
 }
 function tone(f, t="sine", d=0.15, v=0.28) {
@@ -265,19 +300,15 @@ let _musicTrack = -1;
 function musicStart(idx) {
   if (!gameConfig.soundEnabled) return;
   musicStop();
-  _musicTrack = idx;
-  _musicStep  = 0;
-
-  if (G.audioCtx && G.audioCtx.state === "suspended") {
-    G.audioCtx.resume().then(() => {
-      G.soundReady = true;
-      if (_musicTrack === idx) _musicTick();
-    }).catch(() => {
-      // Still tick — notes will silently no-op until context is ready
-      _musicTick();
-    });
-  } else {
+  _pendingMusicTrack = -1;
+  _musicTrack = idx; _musicStep = 0;
+  if (G.soundReady) {
     _musicTick();
+  } else {
+    // Audio not unlocked yet (typical first-load on iOS).
+    // Store the track — _flushPendingMusic() fires once context is running.
+    _pendingMusicTrack = idx;
+    if (G.audioCtx) _tryUnlockAudio(); // try again in case gesture is active
   }
 }
 
@@ -1091,7 +1122,7 @@ function drawHUD() {
   ctx.fillText(lvl.name, W/2, 29);
   ctx.textAlign = "left";
 
-  // Right: сердечки уровня
+  // Right: progress
   for (let i = 0; i < hearts.length; i++) {
     ctx.fillStyle = i < collected ? "#FF6B9D" : "rgba(255,255,255,0.22)";
     ctx.font = "13px serif";
@@ -1160,6 +1191,7 @@ function fullReset() {
   G.screen = "intro";
   cam.x    = 0;
   particles = [];
+  _pendingMusicTrack = -1;
   musicStop();
 }
 
@@ -1182,7 +1214,6 @@ function drawLevelEnd() {
   ctx.strokeStyle="rgba(255,215,0,0.2)"; ctx.lineWidth=7;
   rr(ctx,-190,-80,380,160,20); ctx.stroke();
 
-  // "Уровень пройден"
   txtGlow("Уровень пройден!", 0,-44,
     "bold 13px 'Press Start 2P',monospace", "#FFD700","#FFB300",10);
 

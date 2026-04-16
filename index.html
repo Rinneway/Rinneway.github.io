@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Сердце в каждом шаге</title>
 
   <!-- Open Graph -->
@@ -23,6 +25,13 @@
 </head>
 <body>
 <div id="root">
+
+  <!-- Rotate hint (portrait-only, CSS-driven) -->
+  <div id="rotateHint">
+    <div class="rotate-icon">🔄</div>
+    <div class="rotate-text">Поверни телефон<br>горизонтально</div>
+    <div class="rotate-sub">для комфортной игры</div>
+  </div>
 
   <!-- CANVAS -->
   <div id="gameWrapper">

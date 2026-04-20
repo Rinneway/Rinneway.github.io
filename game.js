@@ -400,7 +400,6 @@ function _mNote(freq, type, dur, vol) {
 //  LOAD LEVEL
 function loadLevel(idx) {
   const lvl = levels[idx];
-  G.lives = gameConfig.lives
   G.level  = idx;
   G.screen = "playing";
 

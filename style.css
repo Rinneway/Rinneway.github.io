@@ -114,14 +114,13 @@ canvas {
   pointer-events: auto;
 }
 
-/* Base button */
 .ctrl-btn {
-  width: 72px; height: 72px;
-  background: rgba(20, 0, 40, 0.55);
+  width: 88px; height: 88px;
+  background: transparent;
   border: 2px solid rgba(255,255,255,0.32);
   border-radius: 18px;
   color: rgba(255,255,255,0.90);
-  font-size: 28px;
+  font-size: 32px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -136,22 +135,8 @@ canvas {
   padding: 8px;
 }
 .ctrl-btn:active {
-  background: rgba(255,45,85,0.45);
   border-color: var(--red);
   transform: scale(0.86);
-  box-shadow: 0 0 16px rgba(255,45,85,0.55);
-}
-
-/*Jump button*/
-.ctrl-btn.jump {
-  width: 88px; height: 88px;
-  background: rgba(255,45,85,0.18);
-  border-color: rgba(255,45,85,0.65);
-  font-size: 32px;
-  box-shadow: 0 6px 24px rgba(255,45,85,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
-}
-.ctrl-btn.jump:active {
-  background: rgba(255,45,85,0.55);
   box-shadow: 0 0 24px rgba(255,45,85,0.7);
 }
 

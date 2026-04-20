@@ -10,7 +10,7 @@ const cam = { x: 0, y: 0, shakeX: 0, shakeY: 0, shakeTimer: 0 };
 // State
 const G = {
   screen: "intro",   // intro | playing | levelEnd | gameover | lock | win
-  level:  0,
+  level:  gameConfig.start_level,
   codes:  ['-', '-', '-'],
   lives:  gameConfig.lives,
   tick:   0,
@@ -21,7 +21,7 @@ const G = {
   introClickBound: false,
   _gameoverBound: false,
 };
-
+ 
 // Player
 const P = { 
   x: 60, y: 300,
@@ -182,13 +182,13 @@ function tone(f, t="sine", d=0.15, v=0.28) {
   } catch(e){}
 }
 const snd = {
-  jump:     () => { tone(380,"square",0.11,0.18); },
-  heart:    () => { tone(880,"sine",0.07,0.28); setTimeout(()=>tone(1100,"sine",0.07,0.28),80); },
+  jump:     () => { tone(370,"square",0.11,0.14); },
+  heart:    () => { tone(860,"sine",0.07,0.2); setTimeout(()=>tone(970,"sine",0.07,0.25),80); },
   portal:   () => { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,"sine",0.18,0.22),i*70)); },
   win:      () => { [523,587,659,784,880,1047,1318].forEach((f,i)=>setTimeout(()=>tone(f,"triangle",0.25,0.26),i*110)); },
   error:    () => { tone(200,"sawtooth",0.22,0.22); },
   bump:     () => { tone(250,"square",0.1,0.15); },
-  spring:   () => { tone(660,"square",0.15,0.2); setTimeout(()=>tone(880,"sine",0.1,0.15),70); },
+  spring:   () => { tone(600,"square",0.15,0.15); setTimeout(()=>tone(800,"sine",0.1,0.15),70); },
   check:    () => { tone(523,"sine",0.1,0.2); setTimeout(()=>tone(784,"sine",0.12,0.2),100); },
   loseLife: () => { [330,262,196].forEach((f,i)=>setTimeout(()=>tone(f,"sawtooth",0.18,0.2),i*130)); },
   gameover: () => { [330,294,262,220,196].forEach((f,i)=>setTimeout(()=>tone(f,"sawtooth",0.28,0.22),i*160)); },
@@ -250,7 +250,7 @@ const MUSIC_TRACKS = [
   {
     // Уровень 3 «Звёздная ночь» ночное приключение, быстро
     // Вдохновлено Mario overworld: пунктирный ритм + прыгающая мелодия.
-    tempo: 135,
+    tempo: 190,
     melody: [
       659, 0, 659, 0,    0, 523, 659,  0,
       784, 0,   0, 0,  392,   0,   0,  0,
@@ -324,8 +324,8 @@ function _musicTick() {
   const mf  = tr.melody[_musicStep % len];
   const bf  = tr.bass  [_musicStep % len];
   const dur = tr.tempo * 0.82 / 1000;
-  if (mf) _mNote(mf, "triangle", dur, 0.10);
-  if (bf) _mNote(bf, "sine",     dur, 0.06);
+  if (mf) _mNote(mf, "triangle", dur, 0.20);
+  if (bf) _mNote(bf, "sine", dur, 0.06);
   _musicStep++;
   _musicTimer = setTimeout(_musicTick, tr.tempo);
 }
@@ -334,22 +334,73 @@ function _mNote(freq, type, dur, vol) {
   if (!G.soundReady) return;
   try {
     const ac = G.audioCtx;
-    const o  = ac.createOscillator();
-    const g  = ac.createGain();
-    o.connect(g); g.connect(ac.destination);
-    o.type = type;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+
+    o.connect(g);
+    g.connect(ac.destination);
+
+    if (type === 'custom') {
+      let real = [0];
+      let imaginary = [0];
+
+      for (let i = 1; i <= 8; i++) {
+        const amplitude = i === 1 ? 0.8 : 1 / (i * i * 2);
+        if (i % 2 === 0) {
+          real.push(amplitude * 0.3); 
+        } else {
+          real.push(amplitude * 0.7); 
+        }
+
+        if (i % 3 === 0) {
+          imaginary.push(amplitude * 0.5); 
+        } else {
+          imaginary.push(amplitude * 0.2); 
+        }
+      }
+
+      const periodicWave = ac.createPeriodicWave(
+        new Float32Array(real),
+        new Float32Array(imaginary)
+      );
+      o.setPeriodicWave(periodicWave);
+    } else {
+      o.type = type;
+    }
+
     o.frequency.setValueAtTime(freq, ac.currentTime);
     g.gain.setValueAtTime(vol, ac.currentTime);
-    g.gain.setValueAtTime(vol * 0.6, ac.currentTime + dur * 0.55);
-    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+
+    const attackTime = 0.01;
+    const decayTime = dur * 0.7; 
+    const releaseTime = dur * 0.2;
+
+    g.gain.exponentialRampToValueAtTime(
+      (vol * 0.4),
+      ac.currentTime + attackTime
+    );
+    g.gain.exponentialRampToValueAtTime(
+      (vol * 0.1),
+      ac.currentTime + attackTime + decayTime
+    );
+    g.gain.exponentialRampToValueAtTime(
+      0.001,
+      ac.currentTime + dur - releaseTime
+    );
+
     o.start(ac.currentTime);
     o.stop(ac.currentTime + dur);
-  } catch(e) {}
+  } catch (e) {
+    console.error('Error playing note:', e);
+  }
 }
+
+
 
 //  LOAD LEVEL
 function loadLevel(idx) {
   const lvl = levels[idx];
+  G.lives = gameConfig.lives
   G.level  = idx;
   G.screen = "playing";
 
@@ -1187,7 +1238,7 @@ function drawGameOver() {
 function fullReset() {
   G.lives  = gameConfig.lives;
   G.codes  = ['-', '-', '-'];
-  G.level  = 0;
+  G.level  = gameConfig.start_level;
   G.screen = "intro";
   cam.x    = 0;
   particles = [];

@@ -1,4 +1,4 @@
-# Rinneway.github.io
+# [Game in browser](Rinneway.github.io)
 
 # 🎮 Web Platformer
 
